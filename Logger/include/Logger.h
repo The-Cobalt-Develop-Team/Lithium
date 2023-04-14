@@ -21,6 +21,7 @@
 #include "LoggerNode.h"
 #include <string>
 #include <utility>
+#include <mutex>
 
 #define DEBUG_FLAG 1
 

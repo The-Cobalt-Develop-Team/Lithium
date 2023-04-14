@@ -1,0 +1,11 @@
+[
+{
+  "directory": "/home/andyshen/Lithium",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-DNDEBUG", "-o", "build/.objs/lithium-logger/linux/x86_64/release/Logger/src/LoggerNode.cpp.o", "Logger/src/LoggerNode.cpp"],
+  "file": "Logger/src/LoggerNode.cpp"
+},
+{
+  "directory": "/home/andyshen/Lithium",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-DNDEBUG", "-o", "build/.objs/lithium-logger/linux/x86_64/release/Logger/src/Logger.cpp.o", "Logger/src/Logger.cpp"],
+  "file": "Logger/src/Logger.cpp"
+}]
