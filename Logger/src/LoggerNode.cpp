@@ -21,50 +21,34 @@
 using namespace Lithium::Logger;
 
 // Constructor Functions
-LogNode::LogNode(int level, std::string message)
-{
-    _type = Simple;
-    _level = level;
-    _parent = nullptr;
-    _message = std::move(message);
+LogNode::LogNode(int level, std::string message) {
+  _type = Simple;
+  _level = level;
+  _parent = nullptr;
+  _message = std::move(message);
 }
 
 // Specify relation Functions
-void LogNode::SpecifyParentNode(LogNode* parent)
-{
-    assert(_level != Root); // Root Node cannot be specified parent node
-    _type = Children;
-    _parent = parent;
-    _logger_name = parent->_logger_name;
+void LogNode::SpecifyParentNode(LogNode *parent) {
+  assert(_level != Root); // Root Node cannot be specified parent node
+  _type = Children;
+  _parent = parent;
+  _logger_name = parent->_logger_name;
 }
 
-void LogNode::AddSubNode(LogNode* children)
-{
-    _children.emplace_back(children);
-    children->_logger_name = this->_logger_name;
+void LogNode::AddSubNode(LogNode *children) {
+  _children.emplace_back(children);
+  children->_logger_name = this->_logger_name;
 }
 
-void LogNode::AddSubNodes(std::initializer_list<LogNode*> children)
-{
-    for (auto it : children) {
-        AddSubNode(it);
-    }
+void LogNode::AddSubNodes(std::initializer_list<LogNode *> children) {
+  for (auto it : children) {
+    AddSubNode(it);
+  }
 }
 
 // Return information Functions
-int LogNode::type() const
-{
-    return _type;
-}
-int LogNode::level() const
-{
-    return _level;
-}
-std::string LogNode::message() const
-{
-    return _message;
-}
-std::string LogNode::logger_name() const
-{
-    return _logger_name;
-}
+int LogNode::type() const { return _type; }
+int LogNode::level() const { return _level; }
+std::string LogNode::message() const { return _message; }
+std::string LogNode::logger_name() const { return _logger_name; }
