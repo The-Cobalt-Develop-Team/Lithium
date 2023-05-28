@@ -19,9 +19,9 @@
 #ifndef LITHIUM_LOGGER_H
 #define LITHIUM_LOGGER_H
 #include "LoggerNode.h"
+#include <mutex>
 #include <string>
 #include <utility>
-#include <mutex>
 
 #define DEBUG_FLAG 1
 
@@ -41,7 +41,6 @@ namespace Logger {
         SimpleLog(int level, std::string message);
     };
 
-    // BareLogger will not be put into LogSystem automatically
     class BareLogger {
     protected:
         std::string _logger_name;
@@ -67,43 +66,6 @@ namespace Logger {
             return _container;
         }
     };
-
-    class Logger : public BareLogger {
-    public:
-        Logger() = default;
-        explicit Logger(std::string LoggerName);
-    };
-
-    //     class LogSystem {
-    //     private:
-    //         static LogSystem instance;
-
-    //     private:
-    //         std::vector<BareLogger*> _container;
-    //         LogSystem();
-    //         ~LogSystem();
-
-    //     public:
-    //         static LogSystem& getInstance()
-    //         {
-    //             return instance;
-    //         }
-
-    //         void addLogger(BareLogger* logger)
-    //         {
-    //             _container.push_back(logger);
-    //             std::cerr << _container.size() << std::endl;
-    //         }
-    //         std::vector<BareLogger*> returnContain()
-    //         {
-    //             return _container;
-    //         }
-    //         auto returnSize()
-    //         {
-    //             return _container.size();
-    //         }
-    //     }; // It is a singleton,to process all Loggers
-    //     LogSystem LogSystem::instance;
 
     static const char* Builtin_Type_String[] = { "Root", "Children", "Simple" };
 
