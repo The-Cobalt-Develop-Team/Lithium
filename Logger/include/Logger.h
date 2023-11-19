@@ -15,62 +15,120 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+#ifndef LITHIUM_LOGGER_NODE_H
+#define LITHIUM_LOGGER_NODE_H
 
-#ifndef LITHIUM_LOGGER_H
-#define LITHIUM_LOGGER_H
-#include "LoggerNode.h"
-#include <mutex>
+#include <cstring>
+#include <map>
 #include <string>
 #include <utility>
+#include <vector>
+namespace Lithium { // NOLINT
+class Level {
+private:
+    // Data field.
+    int level {};
+    std::string levelStr;
+    int syslogEquivalent {};
 
-#define DEBUG_FLAG 1
+public:
+    // Construction Functions.
+    inline Level() = default;
+    inline Level(int Level, const char* LevelStr, int SyslogEquivalent) noexcept
+    {
+        level = Level;
+        levelStr = LevelStr;
+        syslogEquivalent = SyslogEquivalent;
+    }
 
-#if DEBUG_FLAG
-#include <iostream>
-#endif
+    inline ~Level() = default;
 
-namespace Lithium {
+    // Operators. For compatibility, I didn't use the operator<=>, which is new feature in C++20
+    inline bool operator==(const Level& rhs) const
+    {
+        return this->syslogEquivalent == rhs.syslogEquivalent;
+    }
+    inline bool operator!=(const Level& rhs) const
+    {
+        return this->syslogEquivalent != rhs.syslogEquivalent;
+    }
+    inline bool operator<=(const Level& rhs) const
+    {
+        return this->syslogEquivalent <= rhs.syslogEquivalent;
+    }
+    inline bool operator<(const Level& rhs) const
+    {
+        return this->syslogEquivalent < rhs.syslogEquivalent;
+    }
+    inline bool operator>=(const Level& rhs) const
+    {
+        return this->syslogEquivalent >= rhs.syslogEquivalent;
+    }
+    inline bool operator>(const Level& rhs) const
+    {
+        return this->syslogEquivalent > rhs.syslogEquivalent;
+    }
+};
+
+enum {
+    OFF_INT = 1,
+    FATAL_INT,
+    ERROR_INT,
+    WARN_INT,
+    INFO_INT,
+    DEBUG_INT,
+    TRACE_INT,
+    ALL_INT,
+};
+
+/*
+    OFF is highest, will stop outputting log.
+    Fatal will make the program exited unexpectedly.
+    Error means there's something wrong.
+    Warn means the method isn't well.
+    Info is normal log.
+    Debug is used for debug:)
+    Trace wouldn't be used in most situations.
+    All is lowest.
+*/
+static Level OFF = Level(OFF_INT, "OFF", 0); // NOLINT
+static Level FATAL = Level(FATAL_INT, "FATAL", 0); // NOLINT
+static Level ERROR = Level(ERROR_INT, "ERROR", 3); // NOLINT
+static Level WARN = Level(WARN_INT, "WARN", 4); // NOLINT
+static Level INFO = Level(INFO_INT, "INFO", 6); // NOLINT
+static Level DEBUG = Level(DEBUG_INT, "DEBUG", 7); // NOLINT
+static Level TRACE = Level(TRACE_INT, "TRACE", 7); // NOLINT
+static Level ALL = Level(ALL_INT, "ALL", 7); // NOLINT
+
 namespace Logger {
-    class LogTree : LogNode {
-    public:
-        explicit LogTree(std::string LoggerName);
-    };
-
-    class SimpleLog : LogNode {
-    public:
-        SimpleLog(int level, std::string message);
-    };
-
-    class BareLogger {
-    protected:
-        std::string _logger_name;
-        std::vector<LogNode*> _container;
+    class LogManager;
+    // Logger Class.
+    class Logger {
+    private:
+        std::string loggerName;
+        std::vector<Logger*> children;
+        std::map<Level, std::vector<std::string>> cache; // Level->messages
+        size_t cacheDepth = 1; // If the size of cache is larger than depth, it will execute appender.
+        void execute(const Level& level);
 
     public:
-        BareLogger() = default;
-        virtual ~BareLogger()
-        {
-            for (auto p : _container) {
-                delete p;
-            }
-        }
-        explicit BareLogger(std::string LoggerName);
-        void debug(std::string message);
-        void info(std::string message);
-        void warn(std::string message);
-        void error(std::string message);
-        void fatal(std::string message);
-        void addLog(const LogNode& Log);
-        std::vector<LogNode*> returnContain() const
-        {
-            return _container;
-        }
+        Logger() = default;
+        Logger(const char* name, size_t depth);
+        ~Logger();
+        void newLog(const Level& level, const char* message);
+        inline void fatal(const char* message);
+        inline void error(const char* message);
+        inline void warn(const char* message);
+        inline void info(const char* message);
+        inline void debug(const char* message);
+        inline void trace(const char* message);
     };
 
-    static const char* Builtin_Type_String[] = { "Root", "Children", "Simple" };
+    // It is a singleton, which will be initialized before the program.
+    class LogManager {
+    };
 
-    static const char* Builtin_Level_String[] = { "Unknown", "DEBUG", "INFO", "WARN", "ERROR", "FATAL" };
-}
-}
+} // namespace Logger
+} // namespace Lithium
 
 #endif

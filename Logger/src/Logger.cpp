@@ -15,76 +15,63 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#include <utility>
 
 #include "../include/Logger.h"
 
 using namespace Lithium::Logger;
+using Lithium::Level;
 
-// Constructor Functions
-SimpleLog::SimpleLog(int level, std::string message)
+// Construction and Destruction functions.
+Logger::Logger(const char* name, size_t depth)
 {
-    _type = Simple;
-    _level = level;
-    _parent = nullptr;
-    _message = std::move(message);
+    loggerName = name;
+    cacheDepth = depth;
 }
 
-LogTree::LogTree(std::string LoggerName)
+Logger::~Logger() // NOLINT
 {
-    _type = Root;
-    _level = RootLevel;
-    _parent = nullptr;
-    _logger_name = std::move(LoggerName);
+    for (auto& it : children) {
+        it->~Logger();
+    }
+    children.clear();
+    cache.clear();
 }
 
-BareLogger::BareLogger(std::string LoggerName)
+// Functions for add new logs.
+void Logger::newLog(const Level& level, const char* message)
 {
-    _logger_name = std::move(LoggerName);
+    if (cache[level].size() + 1 >= cacheDepth) {
+        execute(level);
+    }
+    cache[level].emplace_back(message);
 }
 
-// void BareLogger::debug(std::string message)
-// {
-//     auto* newLog = new SimpleLog(Level::DEBUG, std::move(message));
-//     _container.emplace_back(newLog);
-// }
-
-// void BareLogger::info(std::string message)
-// {
-//     auto* newLog = new SimpleLog(Level::INFO, std::move(message));
-//     _container.emplace_back(newLog);
-// }
-
-// void BareLogger::warn(std::string message)
-// {
-//     auto* newLog = new SimpleLog(Level::WARN, std::move(message));
-//     _container.emplace_back(newLog);
-// }
-
-// void BareLogger::error(std::string message)
-// {
-//     auto* newLog = new SimpleLog(Level::ERROR, std::move(message));
-//     _container.emplace_back(newLog);
-// }
-
-// void BareLogger::fatal(std::string message)
-// {
-//     auto* newLog = new SimpleLog(Level::FATAL, std::move(message));
-//     _container.emplace_back(newLog);
-// }
-
-void BareLogger::addLog(const LogNode& Log)
+inline void Logger::fatal(const char* message)
 {
-    auto* log = new LogNode;
-    *log = Log;
-    _container.emplace_back(log);
+    newLog(Lithium::FATAL, message);
 }
 
-Logger::Logger(std::string LoggerName)
+inline void Logger::error(const char* message)
 {
-    _logger_name = std::move(LoggerName);
-#if DEBUG_FLAG
-    std::cerr << "Construct Logger" << std::endl;
-#endif
-    // LogSystem::getInstance().addLogger(this);
+    newLog(Lithium::ERROR, message);
+}
+
+inline void Logger::warn(const char* message)
+{
+    newLog(Lithium::WARN, message);
+}
+
+inline void Logger::info(const char* message)
+{
+    newLog(Lithium::INFO, message);
+}
+
+inline void Logger::debug(const char* message)
+{
+    newLog(Lithium::DEBUG, message);
+}
+
+inline void Logger::trace(const char* message)
+{
+    newLog(Lithium::TRACE, message);
 }
