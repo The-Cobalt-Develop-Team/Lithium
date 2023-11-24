@@ -16,7 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "../include/Logger.h"
+#include "Logger.h"
 
 using namespace Lithium::Logger;
 using Lithium::Level;

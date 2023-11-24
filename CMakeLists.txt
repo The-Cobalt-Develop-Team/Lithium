@@ -20,7 +20,8 @@ else(${CMAKE_BUILD_TYPE} STREQUAL RELEASE)
     message("Optional:-fno-asm -std=c++17 -Wall -stdlib=libc++ -O2, Type:Release")
 endif(${CMAKE_BUILD_TYPE} STREQUAL DEBUG)
 
-add_subdirectory(Logger/)
+include_directories(include/Logger/)
+add_subdirectory(src/)
 
 # Install options
 
